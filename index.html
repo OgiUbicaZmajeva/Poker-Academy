@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Texas Hold'em Beginner Academy</title>
+    <!-- React & Babel CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        felt: { DEFAULT: '#064e3b', dark: '#022c22', light: '#047857' },
+                        gold: { DEFAULT: '#fbbf24', dark: '#b45309', light: '#fef08a' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .suit-red { color: #ef4444; }
+        .suit-black { color: #0f172a; }
+        .poker-card {
+            background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            display: inline-flex; flex-direction: column; justify-content: space-between; padding: 6px; font-weight: 800; user-select: none;
+        }
+        .table-oval {
+            background: radial-gradient(circle, #047857 0%, #064e3b 70%, #022c22 100%);
+            border: 12px solid #78350f; box-shadow: inset 0 0 35px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.6);
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const PlayingCard = ({ rank, suit, size = "md" }) => {
+            const isRed = suit === '♥' || suit === '♦';
+            const sizeClasses = {
+                sm: "w-10 h-14 text-xs p-1",
+                md: "w-14 h-20 text-base p-1.5",
+                lg: "w-20 h-28 text-xl p-2"
+            }[size] || "w-14 h-20 text-base p-1.5";
+
+            return (
+                <div className={`poker-card ${sizeClasses} ${isRed ? 'suit-red' : 'suit-black'} transition-all transform hover:-translate-y-1`}>
+                    <div className="leading-none text-left font-bold">{rank}</div>
+                    <div className="text-center font-extrabold text-lg my-auto">{suit}</div>
+                    <div className="leading-none text-right font-bold transform rotate-180">{rank}</div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [activeModule, setActiveModule] = useState(1);
+            const [completedModules, setCompletedModules] = useState({});
+
+            const modules = [
+                { id: 1, title: "1. Terminology & Hand Rankings", icon: "🃏" },
+                { id: 2, title: "2. Flow of Play & Action Mechanics", icon: "🔄" },
+                { id: 3, title: "3. Table Position & The Blinds", icon: "🎯" },
+                { id: 4, title: "4. Pot Odds & Expected Value", icon: "🧮" },
+                { id: 5, title: "5. Edge Cases & Who Wins Quiz", icon: "🏆" },
+                { id: 6, title: "6. Beginner Strategy & Psychology", icon: "🧠" }
+            ];
+
+            const markComplete = (modId) => setCompletedModules(prev => ({ ...prev, [modId]: true }));
+            const progressPct = Math.round((Object.keys(completedModules).length / modules.length) * 100);
+
+            return (
+                <div className="flex h-screen bg-slate-900 text-slate-100 overflow-hidden">
+                    <aside className="w-80 bg-slate-950 border-r border-slate-800 flex flex-col justify-between shrink-0 shadow-2xl">
+                        <div>
+                            <div className="p-6 border-b border-slate-800 bg-slate-950/80">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-3xl">♠️</span>
+                                    <div>
+                                        <h1 className="font-extrabold text-lg text-gold tracking-wide">POKER ACADEMY</h1>
+                                        <p className="text-xs text-slate-400">Texas Hold'em Masterclass</p>
+                                    </div>
+                                </div>
+                                <div className="mt-5">
+                                    <div className="flex justify-between text-xs font-semibold mb-1.5">
+                                        <span className="text-slate-400">Progress</span>
+                                        <span className="text-gold font-bold">{progressPct}%</span>
+                                    </div>
+                                    <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-700">
+                                        <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }}></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <nav className="p-4 space-y-2">
+                                {modules.map((mod) => (
+                                    <button
+                                        key={mod.id}
+                                        onClick={() => setActiveModule(mod.id)}
+                                        className={`w-full text-left p-3.5 rounded-xl font-medium text-sm flex items-center justify-between transition-all ${
+                                            activeModule === mod.id ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 shadow-lg' : 'text-slate-300 hover:bg-slate-900'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-3"><span className="text-xl">{mod.icon}</span><span className="truncate">{mod.title}</span></div>
+                                        {completedModules[mod.id] && <span className="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full font-bold">✓</span>}
+                                    </button>
+                                ))}
+                            </nav>
+                        </div>
+                        <div className="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">Interactive Learning Platform</div>
+                    </aside>
+
+                    <main className="flex-1 overflow-y-auto p-8 bg-slate-900">
+                        <div className="max-w-5xl mx-auto space-y-8 pb-12">
+                            {activeModule === 1 && <Module1 onComplete={() => markComplete(1)} />}
+                            {activeModule === 2 && <Module2 onComplete={() => markComplete(2)} />}
+                            {activeModule === 3 && <Module3 onComplete={() => markComplete(3)} />}
+                            {activeModule === 4 && <Module4 onComplete={() => markComplete(4)} />}
+                            {activeModule === 5 && <Module5 onComplete={() => markComplete(5)} />}
+                            {activeModule === 6 && <Module6 onComplete={() => markComplete(6)} />}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const Module1 = ({ onComplete }) => {
+            useEffect(() => { onComplete(); }, []);
+            return (
+                <div className="space-y-6">
+                    <h2 className="text-3xl font-extrabold text-white">1. Terminology & Hand Rankings</h2>
+                    <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+                        <p className="text-slate-300 mb-4">Rankings from best to worst: Royal Flush ➔ Straight Flush ➔ Four of a Kind ➔ Full House ➔ Flush ➔ Straight ➔ Three of a Kind ➔ Two Pair ➔ One Pair ➔ High Card.</p>
+                    </div>
+                </div>
+            );
+        };
+        const Module2 = ({ onComplete }) => { useEffect(() => { onComplete(); }, []); return <div className="text-2xl font-bold">2. Flow of Play & Action Mechanics (Pre-flop, Flop, Turn, River)</div>; };
+        const Module3 = ({ onComplete }) => { useEffect(() => { onComplete(); }, []); return <div className="text-2xl font-bold">3. Table Position & The Blinds</div>; };
+        const Module4 = ({ onComplete }) => { useEffect(() => { onComplete(); }, []); return <div className="text-2xl font-bold">4. Pot Odds & Expected Value (EV)</div>; };
+        const Module5 = ({ onComplete }) => { useEffect(() => { onComplete(); }, []); return <div className="text-2xl font-bold">5. Edge Cases & Who Wins Quiz</div>; };
+        const Module6 = ({ onComplete }) => { useEffect(() => { onComplete(); }, []); return <div className="text-2xl font-bold">6. Beginner Strategy & Psychology</div>; };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
