@@ -547,18 +547,28 @@
             </div>`;
         }
 
-        // MODULE 1
+        // CORRECTED OFFICIAL POKER HAND HIERARCHY
+        // 1. Royal Flush
+        // 2. Straight Flush
+        // 3. Four of a Kind
+        // 4. Full House
+        // 5. Flush
+        // 6. Straight
+        // 7. Three of a Kind
+        // 8. Two Pair
+        // 9. One Pair
+        // 10. High Card
         const initialHands = [
             { id: "straight-flush", name: "Straight Flush", rankOrder: 2, cards: [{r:'9',s:'♠'},{r:'8',s:'♠'},{r:'7',s:'♠'},{r:'6',s:'♠'},{r:'5',s:'♠'}], desc: "Five consecutive cards of the exact same suit." },
             { id: "pair", name: "One Pair", rankOrder: 9, cards: [{r:'K',s:'♠'},{r:'K',s:'♦'},{r:'9',s:'♣'},{r:'5',s:'♥'},{r:'2',s:'♠'}], desc: "Two cards of matching numerical rank." },
             { id: "royal-flush", name: "Royal Flush", rankOrder: 1, cards: [{r:'A',s:'♥'},{r:'K',s:'♥'},{r:'Q',s:'♥'},{r:'J',s:'♥'},{r:'10',s:'♥'}], desc: "A, K, Q, J, 10 all of the exact same suit." },
-            { id: "flush", name: "Flush", rankOrder: 6, cards: [{r:'A',s:'♣'},{r:'J',s:'♣'},{r:'8',s:'♣'},{r:'6',s:'♣'},{r:'3',s:'♣'}], desc: "Any five cards of the same suit." },
+            { id: "flush", name: "Flush", rankOrder: 5, cards: [{r:'A',s:'♣'},{r:'J',s:'♣'},{r:'8',s:'♣'},{r:'6',s:'♣'},{r:'3',s:'♣'}], desc: "Any five cards of the same suit." },
             { id: "full-house", name: "Full House", rankOrder: 4, cards: [{r:'Q',s:'♠'},{r:'Q',s:'♥'},{r:'Q',s:'♦'},{r:'7',s:'♣'},{r:'7',s:'♠'}], desc: "Three of a kind combined with a pair." },
             { id: "high-card", name: "High Card", rankOrder: 10, cards: [{r:'A',s:'♠'},{r:'J',s:'♦'},{r:'8',s:'♣'},{r:'5',s:'♥'},{r:'2',s:'♠'}], desc: "No made combination; evaluated by highest card." },
-            { id: "straight", name: "Straight", rankOrder: 7, cards: [{r:'8',s:'♥'},{r:'7',s:'♣'},{r:'6',s:'♦'},{r:'5',s:'♠'},{r:'4',s:'♥'}], desc: "Five cards in sequential order across mixed suits." },
+            { id: "straight", name: "Straight", rankOrder: 6, cards: [{r:'8',s:'♥'},{r:'7',s:'♣'},{r:'6',s:'♦'},{r:'5',s:'♠'},{r:'4',s:'♥'}], desc: "Five cards in sequential order across mixed suits." },
             { id: "four-kind", name: "Four of a Kind", rankOrder: 3, cards: [{r:'10',s:'♠'},{r:'10',s:'♥'},{r:'10',s:'♦'},{r:'10',s:'♣'},{r:'K',s:'♠'}], desc: "Four cards of the exact same rank." },
-            { id: "three-kind", name: "Three of a Kind", rankOrder: 8, cards: [{r:'J',s:'♠'},{r:'J',s:'♥'},{r:'J',s:'♣'},{r:'9',s:'♦'},{r:'4',s:'♠'}], desc: "Three cards of matching rank." },
-            { id: "two-pair", name: "Two Pair", rankOrder: 5, cards: [{r:'A',s:'♠'},{r:'A',s:'♣'},{r:'8',s:'♥'},{r:'8',s:'♦'},{r:'Q',s:'♠'}], desc: "Two distinct matching pairs of cards." }
+            { id: "three-kind", name: "Three of a Kind", rankOrder: 7, cards: [{r:'J',s:'♠'},{r:'J',s:'♥'},{r:'J',s:'♣'},{r:'9',s:'♦'},{r:'4',s:'♠'}], desc: "Three cards of matching rank." },
+            { id: "two-pair", name: "Two Pair", rankOrder: 8, cards: [{r:'A',s:'♠'},{r:'A',s:'♣'},{r:'8',s:'♥'},{r:'8',s:'♦'},{r:'Q',s:'♠'}], desc: "Two distinct matching pairs of cards." }
         ];
 
         let mod1Hands = [...initialHands];
@@ -610,7 +620,7 @@
                 feedback.style.color = '#6ee7b7';
                 feedback.style.border = '1px solid #10b981';
                 feedback.innerText = '🎉 Perfect! You have correctly sorted all 10 hands!';
-                completedModules[1] = true;
+                completedModules = true;
                 updateProgress();
             } else {
                 feedback.style.backgroundColor = 'rgba(239,68,68,0.2)';
@@ -710,211 +720,4 @@
 
             if (ev >= 0) {
                 banner.style.backgroundColor = 'rgba(16,185,129,0.2)';
-                banner.style.borderColor = '#10b981';
-                banner.style.color = '#6ee7b7';
-                status.innerText = 'PROFITABLE CALL (+EV)';
-            } else {
-                banner.style.backgroundColor = 'rgba(239,68,68,0.2)';
-                banner.style.borderColor = '#ef4444';
-                banner.style.color = '#fca5a5';
-                status.innerText = 'UNPROFITABLE FOLD (-EV)';
-            }
-
-            completedModules[4] = true;
-            updateProgress();
-        }
-
-        // MODULE 5
-        const quizList = [
-            {
-                title: "Question 1 of 3: Kicker Tie-Breaker",
-                board: [{r:'A',s:'♠'},{r:'A',s:'♥'},{r:'8',s:'♦'},{r:'5',s:'♣'},{r:'2',s:'♠'}],
-                playerA: [{r:'A',s:'♦'},{r:'K',s:'♠'}],
-                playerB: [{r:'A',s:'♣'},{r:'Q',s:'♥'}],
-                correct: "Player A",
-                exp: "Both have Three Aces. Player A wins with King kicker versus Player B's Queen kicker!"
-            },
-            {
-                title: "Question 2 of 3: Playing the Board (Split Pot)",
-                board: [{r:'A',s:'♠'},{r:'K',s:'♥'},{r:'Q',s:'♦'},{r:'J',s:'♣'},{r:'10',s:'♠'}],
-                playerA: [{r:'9',s:'♠'},{r:'9',s:'♥'}],
-                playerB: [{r:'7',s:'♦'},{r:'2',s:'♣'}],
-                correct: "Split Pot",
-                exp: "The board shows an Ace-High Straight (A-K-Q-J-10). It is a Split Pot!"
-            },
-            {
-                title: "Question 3 of 3: Flush High Card Comparison",
-                board: [{r:'J',s:'♥'},{r:'9',s:'♥'},{r:'4',s:'♥'},{r:'2',s:'♣'},{r:'7',s:'♦'}],
-                playerA: [{r:'A',s:'♥'},{r:'5',s:'♥'}],
-                playerB: [{r:'K',s:'♥'},{r:'Q',s:'♥'}],
-                correct: "Player A",
-                exp: "Player A makes an Ace-high Flush, beating Player B's King-high Flush!"
-            }
-        ];
-
-        let quizIdx = 0;
-
-        function renderQuiz() {
-            let q = quizList[quizIdx];
-            document.getElementById('quizTitle').innerText = q.title;
-            document.getElementById('quizBoard').innerHTML = q.board.map(c => createCardHTML(c.r, c.s)).join('');
-            document.getElementById('quizPlayerA').innerHTML = q.playerA.map(c => createCardHTML(c.r, c.s, 'sm')).join('');
-            document.getElementById('quizPlayerB').innerHTML = q.playerB.map(c => createCardHTML(c.r, c.s, 'sm')).join('');
-
-            document.getElementById('quizActionBtns').style.display = 'grid';
-            document.getElementById('quizFeedback').style.display = 'none';
-        }
-
-        function answerQuiz(choice) {
-            let q = quizList[quizIdx];
-            let isCorrect = choice === q.correct;
-            let fb = document.getElementById('quizFeedback');
-
-            document.getElementById('quizActionBtns').style.display = 'none';
-            fb.style.display = 'flex';
-
-            fb.style.backgroundColor = isCorrect ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)';
-            fb.style.borderColor = isCorrect ? '#10b981' : '#ef4444';
-            fb.style.border = '1px solid';
-            fb.style.color = isCorrect ? '#6ee7b7' : '#fca5a5';
-
-            fb.innerHTML = `
-                <div><strong>${isCorrect ? '✅ Correct!' : '❌ Incorrect!'}</strong> ${q.exp}</div>
-                <button class="btn btn-green" onclick="nextQuizQuestion()">Next Question ▶</button>
-            `;
-        }
-
-        function nextQuizQuestion() {
-            if (quizIdx < quizList.length - 1) {
-                quizIdx++;
-                renderQuiz();
-            } else {
-                completedModules[5] = true;
-                updateProgress();
-                alert("🎉 Quiz Completed!");
-            }
-        }
-
-        // MODULE 6: RANDOM GAME
-        let gameDiff = 'Easy';
-        let gameScenario = null;
-        let gameScore = 0;
-        let gameTotal = 0;
-
-        function getRandomCards(count) {
-            let res = [];
-            while (res.length < count) {
-                let r = Ranks[Math.floor(Math.random() * Ranks.length)];
-                let s = Suits[Math.floor(Math.random() * Suits.length)];
-                if (!res.some(c => c.r === r && c.s === s)) {
-                    res.push({ r, s });
-                }
-            }
-            return res;
-        }
-
-        function generateGameScenario() {
-            document.getElementById('gameFeedback').style.display = 'none';
-            document.getElementById('gameInput').value = '';
-
-            let hero = getRandomCards(2);
-
-            if (gameDiff === 'Easy') {
-                let board = getRandomCards(4);
-                let pot = Math.floor(Math.random() * 20 + 4) * 10;
-                let bet = Math.floor(Math.random() * 10 + 2) * 10;
-                let call = bet;
-                let totalPot = pot + bet + call;
-                let ans = parseFloat(((call / totalPot) * 100).toFixed(1));
-
-                gameScenario = {
-                    board, hero,
-                    details: `Current Pot: $${pot} | Opponent Bets: $${bet}`,
-                    q: "What are your Pot Odds expressed as a percentage (%) needed to call?",
-                    ans: ans, unit: "%", tol: 0.5,
-                    steps: `1. Call Amount = $${call}\n2. Total Pot = $${pot} + $${bet} + $${call} = $${totalPot}\n3. Pot Odds % = ($${call} / $${totalPot}) × 100 = ${ans}%`
-                };
-            } else if (gameDiff === 'Medium') {
-                let board = getRandomCards(3);
-                let pot = Math.floor(Math.random() * 25 + 6) * 10;
-                let bet = Math.floor(Math.random() * 12 + 3) * 10;
-                let call = bet;
-                let ev = parseFloat(((0.36 * (pot + bet)) - (0.64 * call)).toFixed(2));
-
-                gameScenario = {
-                    board, hero,
-                    details: `Street: FLOP | Draw: Flush Draw (9 outs ~ 36% equity)\nCurrent Pot: $${pot} | Opponent Bets: $${bet}`,
-                    q: "Calculate the Expected Value (EV in $) of calling this bet.",
-                    ans: ev, unit: "$", tol: 1.0,
-                    steps: `1. Equity = 36% (0.36) | Lose Chance = 64% (0.64)\n2. Pot to Win = $${pot + bet}\n3. EV = (0.36 × $${pot + bet}) - (0.64 × $${call}) = $${ev}`
-                };
-            } else { // Hard
-                let board = getRandomCards(5);
-                let pot = Math.floor(Math.random() * 30 + 10) * 10;
-                let bluff = Math.floor(Math.random() * 15 + 5) * 10;
-                let ev = parseFloat(((0.4 * pot) - (0.6 * bluff)).toFixed(2));
-
-                gameScenario = {
-                    board, hero,
-                    details: `Street: RIVER (Missed Draw)\nCurrent Pot: $${pot} | Hero Bluff Bet: $${bluff}\nOpponent Fold Freq: 40%`,
-                    q: "Calculate the EV ($) of making this river bluff bet.",
-                    ans: ev, unit: "$", tol: 1.0,
-                    steps: `1. Win $${pot} when opponent folds (40% = 0.4)\n2. Lose $${bluff} when opponent calls (60% = 0.6)\n3. EV = (0.4 × $${pot}) - (0.6 × $${bluff}) = $${ev}`
-                };
-            }
-
-            document.getElementById('gameBoard').innerHTML = gameScenario.board.map(c => createCardHTML(c.r, c.s)).join('');
-            document.getElementById('gameHero').innerHTML = gameScenario.hero.map(c => createCardHTML(c.r, c.s)).join('');
-            document.getElementById('gameDetails').innerText = gameScenario.details;
-            document.getElementById('gameQuestion').innerText = gameScenario.q;
-        }
-
-        function setGameDiff(d) {
-            gameDiff = d;
-            document.getElementById('btnDiffEasy').className = d === 'Easy' ? 'btn btn-gold' : 'btn btn-dark';
-            document.getElementById('btnDiffMed').className = d === 'Medium' ? 'btn btn-gold' : 'btn btn-dark';
-            document.getElementById('btnDiffHard').className = d === 'Hard' ? 'btn btn-gold' : 'btn btn-dark';
-            generateGameScenario();
-        }
-
-        function submitGameAnswer() {
-            let input = parseFloat(document.getElementById('gameInput').value);
-            if (isNaN(input)) return;
-
-            gameTotal++;
-            let isCorrect = Math.abs(input - gameScenario.ans) <= gameScenario.tol;
-            if (isCorrect) gameScore++;
-
-            document.getElementById('gameScoreText').innerText = `Score: ${gameScore} / ${gameTotal}`;
-
-            let fb = document.getElementById('gameFeedback');
-            fb.style.display = 'flex';
-            fb.style.backgroundColor = isCorrect ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)';
-            fb.style.borderColor = isCorrect ? '#10b981' : '#ef4444';
-            fb.style.border = '1px solid';
-            fb.style.color = isCorrect ? '#6ee7b7' : '#fca5a5';
-
-            fb.innerHTML = `
-                <h4 style="font-weight:700;">${isCorrect ? '✅ Correct Answer!' : '❌ Incorrect Answer'}</h4>
-                <div>Your answer: ${input}${gameScenario.unit} | Correct answer: ${gameScenario.ans}${gameScenario.unit}</div>
-                <div style="background-color:var(--bg-dark); padding:10px; border-radius:8px; font-family:monospace; white-space:pre-line;"><strong>📖 Step-by-Step Solution:</strong>\n${gameScenario.steps}</div>
-                <button class="btn btn-green" onclick="generateGameScenario()">Next Scenario ▶</button>
-            `;
-
-            completedModules[6] = true;
-            updateProgress();
-        }
-
-        // INIT ON LOAD
-        window.onload = function() {
-            renderMod1List();
-            renderStreet();
-            renderSeats();
-            updateCalc();
-            renderQuiz();
-            generateGameScenario();
-            updateProgress();
-        };
-    </script>
-</body>
-</html>
+                banner.style.borderColor = '#
