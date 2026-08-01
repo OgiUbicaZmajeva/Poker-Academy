@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Texas Hold'em Beginner Academy</title>
+    <title>Texas Hold'em Poker Masterclass & Trainer</title>
     <!-- React & Babel CDN -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -35,31 +35,37 @@
             background: radial-gradient(circle, #047857 0%, #064e3b 70%, #022c22 100%);
             border: 12px solid #78350f; box-shadow: inset 0 0 35px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.6);
         }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
 <body class="h-screen overflow-hidden">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, createContext, useContext } = React;
 
+        // --- PLAYING CARD COMPONENT ---
         const PlayingCard = ({ rank, suit, size = "md" }) => {
             const isRed = suit === '♥' || suit === '♦';
             const sizeClasses = {
-                sm: "w-10 h-14 text-xs p-1",
-                md: "w-14 h-20 text-base p-1.5",
-                lg: "w-20 h-28 text-xl p-2"
-            }[size] || "w-14 h-20 text-base p-1.5";
+                sm: "w-9 h-12 text-xs p-1",
+                md: "w-12 h-16 text-sm p-1",
+                lg: "w-16 h-22 text-base p-1.5"
+            }[size] || "w-12 h-16 text-sm p-1";
 
             return (
-                <div className={`poker-card ${sizeClasses} ${isRed ? 'suit-red' : 'suit-black'} transition-all transform hover:-translate-y-1`}>
+                <div className={`poker-card ${sizeClasses} ${isRed ? 'suit-red' : 'suit-black'} transition-all transform hover:-translate-y-1 hover:shadow-2xl inline-flex shrink-0`}>
                     <div className="leading-none text-left font-bold">{rank}</div>
-                    <div className="text-center font-extrabold text-lg my-auto">{suit}</div>
+                    <div className="text-center font-extrabold text-base my-auto">{suit}</div>
                     <div className="leading-none text-right font-bold transform rotate-180">{rank}</div>
                 </div>
             );
         };
 
+        // --- MAIN APP ---
         const App = () => {
             const [activeModule, setActiveModule] = useState(1);
             const [completedModules, setCompletedModules] = useState({});
@@ -68,56 +74,73 @@
                 { id: 1, title: "1. Terminology & Hand Rankings", icon: "🃏" },
                 { id: 2, title: "2. Flow of Play & Action Mechanics", icon: "🔄" },
                 { id: 3, title: "3. Table Position & The Blinds", icon: "🎯" },
-                { id: 4, title: "4. Pot Odds & Expected Value", icon: "🧮" },
-                { id: 5, title: "5. Edge Cases & Who Wins Quiz", icon: "🏆" },
-                { id: 6, title: "6. Beginner Strategy & Psychology", icon: "🧠" }
+                { id: 4, title: "4. Pot Odds & Expected Value Calculator", icon: "🧮" },
+                { id: 5, title: "5. Edge Cases & 'Who Wins?' Quiz", icon: "🏆" },
+                { id: 6, title: "6. Random Odds & EV Practice Game", icon: "🎲" }
             ];
 
-            const markComplete = (modId) => setCompletedModules(prev => ({ ...prev, [modId]: true }));
+            const markComplete = (id) => setCompletedModules(prev => ({ ...prev, [id]: true }));
             const progressPct = Math.round((Object.keys(completedModules).length / modules.length) * 100);
 
             return (
-                <div className="flex h-screen bg-slate-900 text-slate-100 overflow-hidden">
+                <div className="flex h-screen bg-slate-900 text-slate-100 overflow-hidden font-sans">
+                    {/* PERSISTENT SIDEBAR */}
                     <aside className="w-80 bg-slate-950 border-r border-slate-800 flex flex-col justify-between shrink-0 shadow-2xl">
                         <div>
                             <div className="p-6 border-b border-slate-800 bg-slate-950/80">
                                 <div className="flex items-center gap-3">
                                     <span className="text-3xl">♠️</span>
                                     <div>
-                                        <h1 className="font-extrabold text-lg text-gold tracking-wide">POKER ACADEMY</h1>
-                                        <p className="text-xs text-slate-400">Texas Hold'em Masterclass</p>
+                                        <h1 className="font-extrabold text-base text-gold tracking-wider">POKER ACADEMY</h1>
+                                        <p className="text-[11px] text-slate-400">Interactive Masterclass</p>
                                     </div>
                                 </div>
+
                                 <div className="mt-5">
                                     <div className="flex justify-between text-xs font-semibold mb-1.5">
-                                        <span className="text-slate-400">Progress</span>
+                                        <span className="text-slate-400">Mastery Progress</span>
                                         <span className="text-gold font-bold">{progressPct}%</span>
                                     </div>
                                     <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-700">
-                                        <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }}></div>
+                                        <div
+                                            className="bg-emerald-500 h-full rounded-full transition-all duration-500 shadow-sm"
+                                            style={{ width: `${progressPct}%` }}
+                                        ></div>
                                     </div>
                                 </div>
                             </div>
+
                             <nav className="p-4 space-y-2">
                                 {modules.map((mod) => (
                                     <button
                                         key={mod.id}
                                         onClick={() => setActiveModule(mod.id)}
-                                        className={`w-full text-left p-3.5 rounded-xl font-medium text-sm flex items-center justify-between transition-all ${
-                                            activeModule === mod.id ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 shadow-lg' : 'text-slate-300 hover:bg-slate-900'
+                                        className={`w-full text-left p-3.5 rounded-xl font-medium text-xs flex items-center justify-between transition-all ${
+                                            activeModule === mod.id
+                                                ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/60 shadow-lg font-bold'
+                                                : 'text-slate-300 hover:bg-slate-900 hover:text-white border border-transparent'
                                         }`}
                                     >
-                                        <div className="flex items-center gap-3"><span className="text-xl">{mod.icon}</span><span className="truncate">{mod.title}</span></div>
-                                        {completedModules[mod.id] && <span className="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full font-bold">✓</span>}
+                                        <div className="flex items-center gap-3 truncate">
+                                            <span className="text-base">{mod.icon}</span>
+                                            <span className="truncate">{mod.title}</span>
+                                        </div>
+                                        {completedModules[mod.id] && (
+                                            <span className="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-emerald-500/40 shrink-0 ml-2">✓</span>
+                                        )}
                                     </button>
                                 ))}
                             </nav>
                         </div>
-                        <div className="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">Interactive Learning Platform</div>
+
+                        <div className="p-4 border-t border-slate-800 text-[11px] text-slate-500 text-center">
+                            Poker Academy Engine • Unlocked Navigation
+                        </div>
                     </aside>
 
-                    <main className="flex-1 overflow-y-auto p-8 bg-slate-900">
-                        <div className="max-w-5xl mx-auto space-y-8 pb-12">
+                    {/* MAIN CONTENT CANVAS */}
+                    <main className="flex-1 overflow-y-auto p-8 bg-[#064e3b]">
+                        <div className="max-w-4xl mx-auto space-y-8 pb-12">
                             {activeModule === 1 && <Module1 onComplete={() => markComplete(1)} />}
                             {activeModule === 2 && <Module2 onComplete={() => markComplete(2)} />}
                             {activeModule === 3 && <Module3 onComplete={() => markComplete(3)} />}
@@ -130,22 +153,565 @@
             );
         };
 
+        // ==========================================
+        // MODULE 1: TERMINOLOGY & HAND RANKINGS
+        // ==========================================
         const Module1 = ({ onComplete }) => {
-            useEffect(() => { onComplete(); }, []);
+            const initialHands = [
+                { id: "straight-flush", name: "Straight Flush", rankOrder: 2, cards: [{r:'9',s:'♠'},{r:'8',s:'♠'},{r:'7',s:'♠'},{r:'6',s:'♠'},{r:'5',s:'♠'}], desc: "Five consecutive cards of the exact same suit." },
+                { id: "pair", name: "One Pair", rankOrder: 9, cards: [{r:'K',s:'♠'},{r:'K',s:'♦'},{r:'9',s:'♣'},{r:'5',s:'♥'},{r:'2',s:'♠'}], desc: "Two cards of matching numerical rank." },
+                { id: "royal-flush", name: "Royal Flush", rankOrder: 1, cards: [{r:'A',s:'♥'},{r:'K',s:'♥'},{r:'Q',s:'♥'},{r:'J',s:'♥'},{r:'10',s:'♥'}], desc: "A, K, Q, J, 10 all of the exact same suit. Unbeatable!" },
+                { id: "flush", name: "Flush", rankOrder: 6, cards: [{r:'A',s:'♣'},{r:'J',s:'♣'},{r:'8',s:'♣'},{r:'6',s:'♣'},{r:'3',s:'♣'}], desc: "Any five cards of the same suit, regardless of sequence." },
+                { id: "full-house", name: "Full House", rankOrder: 4, cards: [{r:'Q',s:'♠'},{r:'Q',s:'♥'},{r:'Q',s:'♦'},{r:'7',s:'♣'},{r:'7',s:'♠'}], desc: "Three of a kind combined with a pair (e.g., Queens full of Sevens)." },
+                { id: "high-card", name: "High Card", rankOrder: 10, cards: [{r:'A',s:'♠'},{r:'J',s:'♦'},{r:'8',s:'♣'},{r:'5',s:'♥'},{r:'2',s:'♠'}], desc: "No made combination; evaluated solely by the highest card." },
+                { id: "straight", name: "Straight", rankOrder: 7, cards: [{r:'8',s:'♥'},{r:'7',s:'♣'},{r:'6',s:'♦'},{r:'5',s:'♠'},{r:'4',s:'♥'}], desc: "Five cards in sequential order across mixed suits." },
+                { id: "four-kind", name: "Four of a Kind", rankOrder: 3, cards: [{r:'10',s:'♠'},{r:'10',s:'♥'},{r:'10',s:'♦'},{r:'10',s:'♣'},{r:'K',s:'♠'}], desc: "Four cards of the exact same numerical rank." },
+                { id: "three-kind", name: "Three of a Kind", rankOrder: 8, cards: [{r:'J',s:'♠'},{r:'J',s:'♥'},{r:'J',s:'♣'},{r:'9',s:'♦'},{r:'4',s:'♠'}], desc: "Three cards of matching numerical rank." },
+                { id: "two-pair", name: "Two Pair", rankOrder: 5, cards: [{r:'A',s:'♠'},{r:'A',s:'♣'},{r:'8',s:'♥'},{r:'8',s:'♦'},{r:'Q',s:'♠'}], desc: "Two distinct matching pairs of cards." }
+            ];
+
+            const [hands, setHands] = useState(initialHands);
+            const [attempts, setAttempts] = useState(0);
+            const [validationState, setValidationState] = useState(null);
+            const [showHint, setShowHint] = useState(false);
+
+            const moveHand = (index, direction) => {
+                const targetIndex = index + direction;
+                if (targetIndex < 0 || targetIndex >= hands.length) return;
+                const updated = [...hands];
+                const temp = updated[index];
+                updated[index] = updated[targetIndex];
+                updated[targetIndex] = temp;
+                setHands(updated);
+                setValidationState(null);
+            };
+
+            const validateOrder = () => {
+                const newAttempts = attempts + 1;
+                setAttempts(newAttempts);
+
+                let correctPositions = 0;
+                const isPerfect = hands.every((hand, idx) => {
+                    const isCorrect = hand.rankOrder === idx + 1;
+                    if (isCorrect) correctPositions++;
+                    return isCorrect;
+                });
+
+                if (isPerfect) {
+                    setValidationState({ success: true, score: 10 });
+                    onComplete();
+                } else {
+                    setValidationState({ success: false, score: correctPositions });
+                    if (newAttempts >= 3) setShowHint(true);
+                }
+            };
+
+            const autoSortHands = () => {
+                const sorted = [...hands].sort((a, b) => a.rankOrder - b.rankOrder);
+                setHands(sorted);
+                setValidationState({ success: true, score: 10 });
+                onComplete();
+            };
+
             return (
-                <div className="space-y-6">
-                    <h2 className="text-3xl font-extrabold text-white">1. Terminology & Hand Rankings</h2>
-                    <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700">
-                        <p className="text-slate-300 mb-4">Rankings from best to worst: Royal Flush ➔ Straight Flush ➔ Four of a Kind ➔ Full House ➔ Flush ➔ Straight ➔ Three of a Kind ➔ Two Pair ➔ One Pair ➔ High Card.</p>
+                <div className="space-y-8">
+                    <div>
+                        <div className="inline-block px-3 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full text-xs font-bold mb-2">MODULE 1</div>
+                        <h2 className="text-3xl font-extrabold text-white">Terminology & Hand Rankings</h2>
+                        <p className="text-slate-300 mt-1 text-sm">Master poker terminology and learn the exact ranking hierarchy of poker hands from best to worst.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-slate-800/90 p-5 rounded-2xl border border-slate-700 shadow-md">
+                            <h3 className="text-gold font-bold text-base mb-2">🎴 Hole Cards vs. Community Cards</h3>
+                            <p className="text-xs text-slate-300 leading-relaxed">
+                                <strong>Hole Cards:</strong> 2 private cards dealt face-down to you.<br/>
+                                <strong>Community Cards:</strong> 5 shared cards dealt face-up in the center (Flop, Turn, River).
+                            </p>
+                        </div>
+                        <div className="bg-slate-800/90 p-5 rounded-2xl border border-slate-700 shadow-md">
+                            <h3 className="text-gold font-bold text-base mb-2">💰 Pot & Showdown</h3>
+                            <p className="text-xs text-slate-300 leading-relaxed">
+                                <strong>The Pot:</strong> Cumulative sum of all chips bet in the current hand.<br/>
+                                <strong>Showdown:</strong> Final stage where remaining players reveal cards to determine the winner.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl space-y-6">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-700 pb-4">
+                            <div>
+                                <h3 className="text-xl font-bold text-white">🎮 Sorting Challenge: Hand Hierarchy</h3>
+                                <p className="text-xs text-slate-400 mt-0.5">Arrange hands from <strong>BEST (#1 at top)</strong> to <strong>WORST (#10 at bottom)</strong> using arrows.</p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <span className="text-xs font-mono bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300">
+                                    Attempts: <strong className="text-gold">{attempts}</strong>
+                                </span>
+                                <button onClick={validateOrder} className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg active:scale-95">
+                                    Validate Order ✓
+                                </button>
+                            </div>
+                        </div>
+
+                        {validationState && (
+                            <div className={`p-4 rounded-xl text-xs font-semibold flex items-center justify-between border ${validationState.success ? 'bg-emerald-950 border-emerald-600 text-emerald-300' : 'bg-rose-950 border-rose-800 text-rose-300'}`}>
+                                <span>{validationState.success ? "🎉 Perfect! You have correctly sorted all 10 hands!" : `❌ Incorrect order. You have ${validationState.score} out of 10 positions correct.`}</span>
+                            </div>
+                        )}
+
+                        {showHint && !validationState?.success && (
+                            <div className="p-4 bg-amber-950/80 border border-amber-600/80 rounded-xl space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider">💡 Assistance System (Activated after 3 failed attempts)</h4>
+                                    <button onClick={autoSortHands} className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs transition-all">Apply Solution & Complete Module ➔</button>
+                                </div>
+                                <p className="text-xs text-amber-200/90 leading-relaxed">Exact Hierarchy: 1. Royal Flush → 2. Straight Flush → 3. Four of a Kind → 4. Full House → 5. Flush → 6. Straight → 7. Three of a Kind → 8. Two Pair → 9. One Pair → 10. High Card.</p>
+                            </div>
+                        )}
+
+                        <div className="space-y-3">
+                            {hands.map((item, idx) => (
+                                <div key={item.id} className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 rounded-xl border transition-all gap-3 ${validationState ? (item.rankOrder === idx + 1 ? 'bg-emerald-950/40 border-emerald-600/60' : 'bg-rose-950/30 border-rose-800/60') : 'bg-slate-900 border-slate-700 hover:border-slate-600'}`}>
+                                    <div className="flex items-center gap-3">
+                                        <span className="font-mono text-xs font-bold text-slate-400 w-7">#{idx + 1}</span>
+                                        <div className="flex gap-1 shrink-0">{item.cards.map((c, i) => <PlayingCard key={i} rank={c.r} suit={c.s} size="sm" />)}</div>
+                                        <div><h4 className="font-bold text-white text-sm">{item.name}</h4><p className="text-[11px] text-slate-400">{item.desc}</p></div>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 self-end sm:self-center">
+                                        <button onClick={() => moveHand(idx, -1)} disabled={idx === 0} className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-30 font-bold text-slate-300 text-xs">▲</button>
+                                        <button onClick={() => moveHand(idx, 1)} disabled={idx === hands.length - 1} className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-30 font-bold text-slate-300 text-xs">▼</button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             );
         };
-        const Module2 = ({ onComplete }) => { useEffect(() => { onComplete(); }, []); return <div className="text-2xl font-bold">2. Flow of Play & Action Mechanics (Pre-flop, Flop, Turn, River)</div>; };
-        const Module3 = ({ onComplete }) => { useEffect(() => { onComplete(); }, []); return <div className="text-2xl font-bold">3. Table Position & The Blinds</div>; };
-        const Module4 = ({ onComplete }) => { useEffect(() => { onComplete(); }, []); return <div className="text-2xl font-bold">4. Pot Odds & Expected Value (EV)</div>; };
-        const Module5 = ({ onComplete }) => { useEffect(() => { onComplete(); }, []); return <div className="text-2xl font-bold">5. Edge Cases & Who Wins Quiz</div>; };
-        const Module6 = ({ onComplete }) => { useEffect(() => { onComplete(); }, []); return <div className="text-2xl font-bold">6. Beginner Strategy & Psychology</div>; };
+
+        // ==========================================
+        // MODULE 2: FLOW OF PLAY & ACTION MECHANICS
+        // ==========================================
+        const Module2 = ({ onComplete }) => {
+            const [stage, setStage] = useState(0);
+            const [selectedAction, setSelectedAction] = useState(null);
+
+            const stages = [
+                { name: "Pre-Flop", desc: "Players are dealt 2 private hole cards. Small & Big blinds post forced bets. First betting round begins with player left of BB.", community: [] },
+                { name: "The Flop", desc: "Dealer reveals first 3 community cards. Second round of betting begins starting with Small Blind / first active player.", community: [{r:'A',s:'♠'}, {r:'K',s:'♥'}, {r:'10',s:'♦'}] },
+                { name: "The Turn", desc: "Dealer reveals 4th community card. Third round of betting begins.", community: [{r:'A',s:'♠'}, {r:'K',s:'♥'}, {r:'10',s:'♦'}, {r:'J',s:'♠'}] },
+                { name: "The River", desc: "Dealer reveals 5th and final community card. Final betting round takes place.", community: [{r:'A',s:'♠'}, {r:'K',s:'♥'}, {r:'10',s:'♦'}, {r:'J',s:'♠'}, {r:'2',s:'♣'}] },
+                { name: "Showdown", desc: "Remaining players reveal hole cards. Best 5-card hand wins the pot!", community: [{r:'A',s:'♠'}, {r:'K',s:'♥'}, {r:'10',s:'♦'}, {r:'J',s:'♠'}, {r:'2',s:'♣'}] }
+            ];
+
+            const actionDescriptions = {
+                Check: "Pass action without wagering chips (only possible if no previous bet exists).",
+                Bet: "Put initial chips into the pot when no previous bet has been made.",
+                Call: "Match the exact amount of a previous player's bet to stay in the hand.",
+                Raise: "Increase the current bet size, forcing subsequent players to match or fold.",
+                Fold: "Surrender your cards and forfeit any chips already committed."
+            };
+
+            const nextStage = () => {
+                if (stage < stages.length - 1) {
+                    const next = stage + 1;
+                    setStage(next);
+                    if (next === stages.length - 1) onComplete();
+                }
+            };
+
+            return (
+                <div className="space-y-8">
+                    <div>
+                        <div className="inline-block px-3 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full text-xs font-bold mb-2">MODULE 2</div>
+                        <h2 className="text-3xl font-extrabold text-white">Flow of Play & Action Mechanics</h2>
+                        <p className="text-slate-300 mt-1 text-sm">Experience how a hand unfolds street by street from Pre-flop to Showdown.</p>
+                    </div>
+
+                    <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 space-y-6 shadow-xl">
+                        <div className="flex justify-between items-center">
+                            <h3 className="text-xl font-bold text-white">🔄 Interactive Street Simulator</h3>
+                            <div className="flex gap-2">
+                                <button onClick={() => setStage(prev => Math.max(0, prev - 1))} disabled={stage === 0} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-30 rounded-xl text-sm font-bold">◀ Previous</button>
+                                <button onClick={nextStage} disabled={stage === stages.length - 1} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-30 rounded-xl text-sm font-bold">Next Street ▶</button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-5 gap-2">
+                            {stages.map((s, idx) => (
+                                <div key={idx} onClick={() => setStage(idx)} className={`p-3 rounded-xl border text-center cursor-pointer ${stage === idx ? 'bg-emerald-950 border-emerald-500 text-emerald-300 font-bold' : (idx < stage ? 'bg-slate-800 border-slate-600 text-slate-300' : 'bg-slate-900 border-slate-800 text-slate-500')}`}>
+                                    <div className="text-[10px] uppercase font-mono">Step {idx + 1}</div>
+                                    <div className="text-xs truncate font-semibold">{s.name}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="table-oval p-8 rounded-3xl text-center space-y-6">
+                            <div>
+                                <span className="text-xs font-bold uppercase tracking-widest text-emerald-200 block mb-2">COMMUNITY CARDS</span>
+                                <div className="flex justify-center gap-3 min-h-[88px] items-center">
+                                    {stages[stage].community.length === 0 ? <div className="text-emerald-200/50 text-sm italic py-4">No community cards dealt yet during Pre-flop</div> : stages[stage].community.map((c, i) => <PlayingCard key={i} rank={c.r} suit={c.s} size="md" />)}
+                                </div>
+                            </div>
+                            <div className="border-t border-emerald-800/60 pt-6">
+                                <span className="text-xs font-bold uppercase tracking-widest text-emerald-200 block mb-2">YOUR HOLE CARDS</span>
+                                <div className="flex justify-center gap-3"><PlayingCard rank="Q" suit="♠" size="md" /><PlayingCard rank="J" suit="♥" size="md" /></div>
+                            </div>
+                        </div>
+
+                        <div className="bg-slate-900 p-5 rounded-xl border border-slate-700 space-y-4">
+                            <div><h4 className="text-lg font-bold text-gold">{stages[stage].name} Stage Overview</h4><p className="text-sm text-slate-300 mt-1 leading-relaxed">{stages[stage].desc}</p></div>
+                            <div className="pt-3 border-t border-slate-800">
+                                <span className="text-xs font-bold text-slate-400 uppercase">Click an Action to Learn Mechanics:</span>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {['Check', 'Bet', 'Call', 'Raise', 'Fold'].map((action) => (
+                                        <button key={action} onClick={() => setSelectedAction(action)} className={`px-4 py-2 rounded-xl text-sm font-bold border ${selectedAction === action ? 'bg-gold text-slate-950 border-gold' : 'bg-slate-800 border-slate-700 text-slate-200'}`}>{action}</button>
+                                    ))}
+                                </div>
+                                {selectedAction && <div className="mt-3 p-3 bg-slate-950 rounded-xl border border-gold/30 text-xs text-gold"><strong>{selectedAction}:</strong> {actionDescriptions[selectedAction]}</div>}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ==========================================
+        // MODULE 3: TABLE POSITION & THE BLINDS
+        // ==========================================
+        const Module3 = ({ onComplete }) => {
+            const [selectedSeat, setSelectedSeat] = useState(null);
+
+            const seats = [
+                { id: 1, name: "SB", full: "Small Blind", positionGroup: "Blinds", color: "border-amber-500 bg-amber-950/50 text-amber-300", desc: "Forced small bet before cards dealt. Acts first post-flop (worst position)." },
+                { id: 2, name: "BB", full: "Big Blind", positionGroup: "Blinds", color: "border-amber-500 bg-amber-950/50 text-amber-300", desc: "Forced full bet. Acts second post-flop. Gets discount pre-flop." },
+                { id: 3, name: "UTG", full: "Under The Gun", positionGroup: "Early", color: "border-rose-500 bg-rose-950/50 text-rose-300", desc: "First to act pre-flop. Must play tight premium hands." },
+                { id: 4, name: "UTG+1", full: "Under The Gun +1", positionGroup: "Early", color: "border-rose-500 bg-rose-950/50 text-rose-300", desc: "Early position. Disadvantage of acting early throughout the hand." },
+                { id: 5, name: "MP", full: "Middle Position", positionGroup: "Middle", color: "border-blue-500 bg-blue-950/50 text-blue-300", desc: "Fewer players behind; can widen hand range slightly." },
+                { id: 6, name: "MP+1", full: "Middle Position +1", positionGroup: "Middle", color: "border-blue-500 bg-blue-950/50 text-blue-300", desc: "Moderate flexibility, vulnerable to late position raises." },
+                { id: 7, name: "HJ", full: "Hijack", positionGroup: "Late", color: "border-emerald-500 bg-emerald-950/50 text-emerald-300", desc: "Late position opens up aggressive stealing opportunities." },
+                { id: 8, name: "CO", full: "Cutoff", positionGroup: "Late", color: "border-emerald-500 bg-emerald-950/50 text-emerald-300", desc: "Second best seat at the table! Great position to raise/steal blinds." },
+                { id: 9, name: "BTN", full: "The Button (Dealer)", positionGroup: "Late", color: "border-emerald-500 bg-emerald-950/50 text-emerald-300", desc: "THE BEST SEAT AT THE TABLE! Always acts last on every post-flop street." }
+            ];
+
+            const selectSeat = (s) => {
+                setSelectedSeat(s);
+                onComplete();
+            };
+
+            return (
+                <div className="space-y-8">
+                    <div>
+                        <div className="inline-block px-3 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full text-xs font-bold mb-2">MODULE 3</div>
+                        <h2 className="text-3xl font-extrabold text-white">Table Position & The Blinds</h2>
+                        <p className="text-slate-300 mt-1 text-sm">Position is power in poker. Learn how acting last provides a massive tactical advantage.</p>
+                    </div>
+
+                    <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl space-y-6">
+                        <div className="table-oval p-12 rounded-[50px] relative min-h-[380px] flex items-center justify-center">
+                            <div className="text-center"><span className="text-emerald-200/40 text-2xl font-black tracking-widest block">POKER TABLE</span><span className="text-xs text-emerald-300/60 font-semibold">9-PLAYERS MAX</span></div>
+                            <div className="absolute inset-0 p-6 flex flex-wrap justify-between items-center pointer-events-none">
+                                {seats.map((s) => (
+                                    <button key={s.id} onClick={() => selectSeat(s)} className={`pointer-events-auto px-3.5 py-2 rounded-xl border font-bold text-xs transition-all shadow-lg hover:scale-110 ${s.color} ${selectedSeat?.id === s.id ? 'ring-4 ring-gold scale-110 z-10' : ''}`}>{s.name}</button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {selectedSeat ? (
+                            <div className="bg-slate-900 p-5 rounded-xl border border-slate-700 space-y-2">
+                                <div className="flex items-center justify-between"><h4 className="text-lg font-bold text-gold">{selectedSeat.full} ({selectedSeat.name})</h4><span className={`px-3 py-1 rounded-full text-xs font-bold border ${selectedSeat.color}`}>Tier: {selectedSeat.positionGroup} Position</span></div>
+                                <p className="text-sm text-slate-300 leading-relaxed">{selectedSeat.desc}</p>
+                            </div>
+                        ) : <div className="text-center p-4 bg-slate-900/50 rounded-xl text-xs text-slate-400 border border-dashed border-slate-700">👆 Click on any seat around the virtual table to inspect position strategy!</div>}
+                    </div>
+                </div>
+            );
+        };
+
+        // ==========================================
+        // MODULE 4: POT ODDS & EXPECTED VALUE (EV)
+        // ==========================================
+        const Module4 = ({ onComplete }) => {
+            const [potSize, setPotSize] = useState(150);
+            const [betSize, setBetSize] = useState(50);
+            const [outs, setOuts] = useState(9);
+
+            const callAmount = betSize;
+            const totalPotAfterCall = potSize + betSize + callAmount;
+            const requiredEquityPct = parseFloat(((callAmount / totalPotAfterCall) * 100).toFixed(1));
+            const potOddsRatio = parseFloat(((potSize + betSize) / callAmount).toFixed(1));
+            const flopEquity = outs * 4;
+            const winP = flopEquity / 100;
+            const loseP = 1 - winP;
+            const ev = parseFloat(((winP * (potSize + betSize)) - (loseP * callAmount)).toFixed(2));
+            const isProfitable = ev >= 0;
+
+            useEffect(() => { onComplete(); }, []);
+
+            return (
+                <div className="space-y-8">
+                    <div>
+                        <div className="inline-block px-3 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full text-xs font-bold mb-2">MODULE 4</div>
+                        <h2 className="text-3xl font-extrabold text-white">Pot Odds & Expected Value (EV) Calculator</h2>
+                        <p className="text-slate-300 mt-1 text-sm">Calculate pot odds and required equity in real-time to make profitable decisions.</p>
+                    </div>
+
+                    <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl space-y-6">
+                        <h3 className="text-xl font-bold text-white">🧮 Dynamic Pot Odds & EV Calculator</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="space-y-5 bg-slate-900 p-5 rounded-xl border border-slate-700">
+                                <div><div className="flex justify-between text-xs font-bold mb-1.5"><span className="text-slate-300">Pot Size:</span><span className="text-gold font-mono">${potSize}</span></div><input type="range" min="20" max="1000" step="10" value={potSize} onChange={(e) => setPotSize(Number(e.target.value))} className="w-full accent-emerald-500 cursor-pointer" /></div>
+                                <div><div className="flex justify-between text-xs font-bold mb-1.5"><span className="text-slate-300">Bet Size:</span><span className="text-gold font-mono">${betSize}</span></div><input type="range" min="10" max="500" step="5" value={betSize} onChange={(e) => setBetSize(Number(e.target.value))} className="w-full accent-emerald-500 cursor-pointer" /></div>
+                                <div><div className="flex justify-between text-xs font-bold mb-1.5"><span className="text-slate-300">Outs:</span><span className="text-gold font-mono">{outs} Outs</span></div><input type="range" min="1" max="15" step="1" value={outs} onChange={(e) => setOuts(Number(e.target.value))} className="w-full accent-emerald-500 cursor-pointer" /></div>
+                            </div>
+
+                            <div className="md:col-span-2 grid grid-cols-2 gap-4">
+                                <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center"><span className="text-xs text-slate-400 font-semibold block">POT ODDS RATIO</span><span className="text-2xl font-black text-white mt-1 block font-mono">{potOddsRatio}:1</span></div>
+                                <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center"><span className="text-xs text-slate-400 font-semibold block">REQUIRED EQUITY</span><span className="text-2xl font-black text-gold mt-1 block font-mono">{requiredEquityPct}%</span></div>
+                                <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center"><span className="text-xs text-slate-400 font-semibold block">HERO EQUITY (FLOP)</span><span className="text-2xl font-black text-emerald-400 mt-1 block font-mono">~{flopEquity}%</span></div>
+                                <div className={`p-4 rounded-xl border text-center flex flex-col justify-center ${isProfitable ? 'bg-emerald-950/70 border-emerald-500 text-emerald-300' : 'bg-rose-950/70 border-rose-600 text-rose-300'}`}>
+                                    <span className="text-xs font-bold block">EXPECTED VALUE (EV)</span>
+                                    <span className="text-2xl font-black mt-0.5 block font-mono">${ev}</span>
+                                    <span className="text-[10px] font-bold tracking-wider uppercase mt-1">{isProfitable ? "✅ PROFITABLE CALL (+EV)" : "❌ UNPROFITABLE FOLD (-EV)"}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ==========================================
+        // MODULE 5: EDGE CASES & "WHO WINS?" QUIZ
+        // ==========================================
+        const Module5 = ({ onComplete }) => {
+            const quizQuestions = [
+                { id: 1, title: "Kicker Tie-Breaker", board: [{r:'A',s:'♠'},{r:'A',s:'♥'},{r:'8',s:'♦'},{r:'5',s:'♣'},{r:'2',s:'♠'}], playerA: { name: "Player A", cards: [{r:'A',s:'♦'},{r:'K',s:'♠'}] }, playerB: { name: "Player B", cards: [{r:'A',s:'♣'},{r:'Q',s:'♥'}] }, correctWinner: "Player A", explanation: "Player A wins with King kicker versus Player B's Queen kicker!" },
+                { id: 2, title: "Playing the Board (Split Pot)", board: [{r:'A',s:'♠'},{r:'K',s:'♥'},{r:'Q',s:'♦'},{r:'J',s:'♣'},{r:'10',s:'♠'}], playerA: { name: "Player A", cards: [{r:'9',s:'♠'},{r:'9',s:'♥'}] }, playerB: { name: "Player B", cards: [{r:'7',s:'♦'},{r:'2',s:'♣'}] }, correctWinner: "Split Pot", explanation: "The board shows an Ace-High Straight (A-K-Q-J-10). It is a Split Pot!" },
+                { id: 3, title: "Flush High-Card Comparison", board: [{r:'J',s:'♥'},{r:'9',s:'♥'},{r:'4',s:'♥'},{r:'2',s:'♣'},{r:'7',s:'♦'}], playerA: { name: "Player A", cards: [{r:'A',s:'♥'},{r:'5',s:'♥'}] }, playerB: { name: "Player B", cards: [{r:'K',s:'♥'},{r:'Q',s:'♥'}] }, correctWinner: "Player A", explanation: "Player A makes an Ace-high Flush, beating Player B's King-high Flush!" }
+            ];
+
+            const [currentQIndex, setCurrentQIndex] = useState(0);
+            const [userAnswer, setUserAnswer] = useState(null);
+            const q = quizQuestions[currentQIndex];
+
+            const handleAnswer = (choice) => {
+                setUserAnswer(choice);
+            };
+
+            const nextQuestion = () => {
+                setUserAnswer(null);
+                if (currentQIndex < quizQuestions.length - 1) {
+                    setCurrentQIndex(prev => prev + 1);
+                } else {
+                    onComplete();
+                }
+            };
+
+            return (
+                <div className="space-y-8">
+                    <div>
+                        <div className="inline-block px-3 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full text-xs font-bold mb-2">MODULE 5</div>
+                        <h2 className="text-3xl font-extrabold text-white">Edge Cases & "Who Wins?" Quiz</h2>
+                        <p className="text-slate-300 mt-1 text-sm">Test your evaluation skills on kickers, split pots, and tie-breakers.</p>
+                    </div>
+
+                    <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl space-y-6">
+                        <h3 className="text-xl font-bold text-white">🏆 Question {currentQIndex + 1} of {quizQuestions.length}: {q.title}</h3>
+                        <div className="table-oval p-6 rounded-2xl text-center space-y-3">
+                            <span className="text-xs font-bold uppercase text-emerald-200">COMMUNITY BOARD CARDS</span>
+                            <div className="flex justify-center gap-2">{q.board.map((c, i) => <PlayingCard key={i} rank={c.r} suit={c.s} size="md" />)}</div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center space-y-2"><span className="text-sm font-bold text-slate-300 block">{q.playerA.name}</span><div className="flex justify-center gap-2">{q.playerA.cards.map((c, i) => <PlayingCard key={i} rank={c.r} suit={c.s} size="sm" />)}</div></div>
+                            <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 text-center space-y-2"><span className="text-sm font-bold text-slate-300 block">{q.playerB.name}</span><div className="flex justify-center gap-2">{q.playerB.cards.map((c, i) => <PlayingCard key={i} rank={c.r} suit={c.s} size="sm" />)}</div></div>
+                        </div>
+
+                        {!userAnswer ? (
+                            <div className="grid grid-cols-3 gap-3">
+                                <button onClick={() => handleAnswer("Player A")} className="p-3 bg-slate-900 hover:bg-slate-700 rounded-xl font-bold text-sm border border-slate-700">Player A Wins</button>
+                                <button onClick={() => handleAnswer("Split Pot")} className="p-3 bg-slate-900 hover:bg-slate-700 rounded-xl font-bold text-sm border border-slate-700">Split Pot (Tie)</button>
+                                <button onClick={() => handleAnswer("Player B")} className="p-3 bg-slate-900 hover:bg-slate-700 rounded-xl font-bold text-sm border border-slate-700">Player B Wins</button>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className={`p-4 rounded-xl border text-sm ${userAnswer === q.correctWinner ? 'bg-emerald-950 border-emerald-600 text-emerald-300' : 'bg-rose-950 border-rose-700 text-rose-300'}`}>
+                                    <strong>{userAnswer === q.correctWinner ? '✅ Correct!' : '❌ Incorrect!'}</strong> {q.explanation}
+                                </div>
+                                <button onClick={nextQuestion} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 font-bold text-white rounded-xl text-sm">{currentQIndex < quizQuestions.length - 1 ? 'Next Scenario ▶' : 'Finish Quiz ✓'}</button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // ==========================================
+        // MODULE 6: RANDOM POKER ODDS & EV GAME GENERATOR
+        // ==========================================
+        const Module6 = ({ onComplete }) => {
+            const Ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            const Suits = ['♠', '♥', '♦', '♣'];
+
+            const [diff, setDiff] = useState("Easy");
+            const [scenario, setScenario] = useState(null);
+            const [userVal, setUserVal] = useState("");
+            const [feedback, setFeedback] = useState(null);
+            const [score, setScore] = useState(0);
+            const [total, setTotal] = useState(0);
+
+            const getRandomCards = (count) => {
+                let res = [];
+                while (res.length < count) {
+                    let r = Ranks[Math.floor(Math.random() * Ranks.length)];
+                    let s = Suits[Math.floor(Math.random() * Suits.length)];
+                    if (!res.some(c => c.rank === r && c.suit === s)) {
+                        res.push({ rank: r, suit: s });
+                    }
+                }
+                return res;
+            };
+
+            const generateGame = (difficulty = diff) => {
+                setFeedback(null);
+                setUserVal("");
+                const hero = getRandomCards(2);
+
+                if (difficulty === "Easy") {
+                    const board = getRandomCards(4);
+                    const pot = Math.floor(Math.random() * 20 + 4) * 10;
+                    const bet = Math.floor(Math.random() * 10 + 2) * 10;
+                    const call = bet;
+                    const totalPot = pot + bet + call;
+                    const ans = parseFloat(((call / totalPot) * 100).toFixed(1));
+
+                    setScenario({
+                        category: "EASY • POT ODDS PERCENTAGE",
+                        board, hero,
+                        details: `Current Pot: $${pot} | Opponent Bets: $${bet}`,
+                        question: "What are your Pot Odds expressed as a percentage (%) needed to call?",
+                        answer: ans, unit: "%", tolerance: 0.5,
+                        steps: [
+                            `1. Identify Call Amount = $${call}`,
+                            `2. Total Pot after call = $${pot} + $${bet} + $${call} = $${totalPot}`,
+                            `3. Pot Odds % = ($${call} / $${totalPot}) × 100 = ${ans}%`
+                        ]
+                    });
+                } else if (difficulty === "Medium") {
+                    const board = getRandomCards(3);
+                    const pot = Math.floor(Math.random() * 25 + 6) * 10;
+                    const bet = Math.floor(Math.random() * 12 + 3) * 10;
+                    const call = bet;
+                    const outs = 9;
+                    const equity = outs * 4;
+                    const winP = equity / 100;
+                    const loseP = 1 - winP;
+                    const ev = parseFloat(((winP * (pot + bet)) - (loseP * call)).toFixed(2));
+
+                    setScenario({
+                        category: "MEDIUM • EV OF CALLING DRAW (FLOP)",
+                        board, hero,
+                        details: `Street: FLOP | Draw: Flush Draw (9 outs ~ 36% equity)\nCurrent Pot: $${pot} | Opponent Bets: $${bet}`,
+                        question: "Calculate the Expected Value (EV in $) of calling this bet.",
+                        answer: ev, unit: "$", tolerance: 1.0,
+                        steps: [
+                            `1. Equity = 36% (0.36) | Lose Chance = 64% (0.64)`,
+                            `2. Pot to Win = $${pot} + $${bet} = $${pot + bet}`,
+                            `3. EV Formula = (0.36 × $${pot + bet}) - (0.64 × $${call}) = $${ev}`
+                        ]
+                    });
+                } else {
+                    const board = getRandomCards(5);
+                    const pot = Math.floor(Math.random() * 30 + 10) * 10;
+                    const bluff = Math.floor(Math.random() * 15 + 5) * 10;
+                    const foldP = 0.4;
+                    const callP = 0.6;
+                    const ev = parseFloat(((foldP * pot) - (callP * bluff)).toFixed(2));
+
+                    setScenario({
+                        category: "HARD • RIVER BLUFF EV",
+                        board, hero,
+                        details: `Street: RIVER (Missed Draw)\nCurrent Pot: $${pot} | Hero Bluff Bet Size: $${bluff}\nOpponent Fold Frequency: 40%`,
+                        question: "Calculate the EV ($) of making this river bluff bet.",
+                        answer: ev, unit: "$", tolerance: 1.0,
+                        steps: [
+                            `1. Win $${pot} when opponent folds (40% freq = 0.4)`,
+                            `2. Lose $${bluff} when opponent calls (60% freq = 0.6)`,
+                            `3. EV = (0.4 × $${pot}) - (0.6 × $${bluff}) = $${ev}`
+                        ]
+                    });
+                }
+            };
+
+            useEffect(() => {
+                generateGame("Easy");
+                onComplete();
+            }, []);
+
+            const checkGameAnswer = () => {
+                if (!scenario || userVal === "") return;
+                const parsed = parseFloat(userVal);
+                if (isNaN(parsed)) return;
+
+                setTotal(prev => prev + 1);
+                const isCorrect = Math.abs(parsed - scenario.answer) <= scenario.tolerance;
+                if (isCorrect) setScore(prev => prev + 1);
+
+                setFeedback({ isCorrect, parsed });
+            };
+
+            return (
+                <div className="space-y-8">
+                    <div>
+                        <div className="inline-block px-3 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full text-xs font-bold mb-2">MODULE 6</div>
+                        <h2 className="text-3xl font-extrabold text-white">Random Poker Odds & EV Practice Game</h2>
+                        <p className="text-slate-300 mt-1 text-sm">Practice calculating pot odds, EV, and bluff EV in infinite randomized poker scenarios!</p>
+                    </div>
+
+                    <div className="flex justify-between items-center bg-slate-800 p-4 rounded-xl border border-slate-700">
+                        <div className="flex gap-2">
+                            {['Easy', 'Medium', 'Hard'].map((d) => (
+                                <button key={d} onClick={() => { setDiff(d); generateGame(d); }} className={`px-4 py-2 rounded-lg text-xs font-bold border ${diff === d ? 'bg-gold text-slate-950 border-gold' : 'bg-slate-900 border-slate-700 text-slate-300'}`}>{d}</button>
+                            ))}
+                        </div>
+                        <span className="text-xs font-mono font-bold text-gold">Score: {score} / {total}</span>
+                    </div>
+
+                    {scenario && (
+                        <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl space-y-6">
+                            <span className="px-3 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full text-[10px] font-bold uppercase">{scenario.category}</span>
+
+                            <div className="table-oval p-6 rounded-2xl text-center space-y-4">
+                                <div><span className="text-[10px] font-bold uppercase tracking-widest text-emerald-200 block mb-1">BOARD CARDS</span><div className="flex justify-center gap-2">{scenario.board.map((c, i) => <PlayingCard key={i} rank={c.rank} suit={c.suit} size="md" />)}</div></div>
+                                <div className="border-t border-emerald-800/60 pt-3"><span className="text-[10px] font-bold uppercase tracking-widest text-emerald-200 block mb-1">HERO HAND</span><div className="flex justify-center gap-2">{scenario.hero.map((c, i) => <PlayingCard key={i} rank={c.rank} suit={c.suit} size="md" />)}</div></div>
+                            </div>
+
+                            <div className="bg-slate-900 p-4 rounded-xl border border-slate-700 text-sm whitespace-pre-line text-slate-200">{scenario.details}</div>
+                            <div className="p-4 bg-slate-900/60 border-l-4 border-emerald-500 text-sm font-semibold text-white">{scenario.question}</div>
+
+                            <div className="flex gap-3">
+                                <input type="number" step="0.1" value={userVal} onChange={(e) => setUserVal(e.target.value)} placeholder="Enter numerical answer..." className="flex-1 p-3 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none font-mono" />
+                                <button onClick={checkGameAnswer} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-sm shadow-lg">Submit Answer</button>
+                            </div>
+
+                            {feedback && (
+                                <div className={`p-5 rounded-xl border space-y-3 ${feedback.isCorrect ? 'bg-emerald-950 border-emerald-600 text-emerald-300' : 'bg-rose-950 border-rose-800 text-rose-300'}`}>
+                                    <h4 className="font-bold text-base">{feedback.isCorrect ? "✅ Correct Answer!" : "❌ Incorrect Answer"}</h4>
+                                    <p className="text-xs">Your answer: {feedback.parsed}{scenario.unit} | Correct answer: {scenario.answer}{scenario.unit}</p>
+                                    <div className="p-3 bg-slate-950 rounded-lg text-xs font-mono space-y-1 text-slate-300">
+                                        <strong>📖 Step-by-Step Solution:</strong>
+                                        {scenario.steps.map((s, i) => <div key={i}>{s}</div>)}
+                                    </div>
+                                    <button onClick={() => generateGame(diff)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs">Next Scenario ▶</button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
